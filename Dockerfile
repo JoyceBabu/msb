@@ -1,28 +1,35 @@
 # escape=`
-# Let us use PowerShell line continuation.
 
-FROM mcr.microsoft.com/dotnet/framework/sdk:4.8
+# Use a specific tagged image. Tags can be changed, though that is unlikely for most images.
+# You could also use the immutable tag @sha256:324e9ab7262331ebb16a4100d0fb1cfb804395a766e3bb1806c62989d1fc1326
+ARG FROM_IMAGE=mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019
+FROM ${FROM_IMAGE}
 
 # Restore the default Windows shell for correct batch processing.
 SHELL ["cmd", "/S", "/C"]
 
-# Download the Visual Studio Build Tools bootstrapper.
-ADD https://aka.ms/vs/16/release/vs_buildtools.exe C:\Temp\vs_buildtools.exe
+# Copy our Install script.
+COPY Install.cmd C:\TEMP\
 
-# Use the latest release channel.
-ADD https://aka.ms/vs/16/release/channel C:\Temp\VisualStudio.chman
+# Download collect.exe in case of an install failure.
+ADD https://aka.ms/vscollect.exe C:\TEMP\collect.exe
+
+# Use the latest release channel. For more control, specify the location of an internal layout.
+ARG CHANNEL_URL=https://aka.ms/vs/16/release/channel
+ADD ${CHANNEL_URL} C:\TEMP\VisualStudio.chman
+
+ADD https://aka.ms/vs/16/release/vs_buildtools.exe C:\TEMP\vs_buildtools.exe
 
 # For help on command-line syntax:
 # https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio
 # Install MSVC C++ compiler, CMake, and MSBuild.
-RUN C:\Temp\vs_buildtools.exe `
-    --quiet --wait --norestart --nocache `
+RUN C:\TEMP\Install.cmd C:\TEMP\vs_buildtools.exe --quiet --wait --norestart --nocache `
     --installPath C:\BuildTools `
-    --channelUri C:\Temp\VisualStudio.chman `
-    --installChannelUri C:\Temp\VisualStudio.chman `
+    --channelUri C:\TEMP\VisualStudio.chman `
+    --installChannelUri C:\TEMP\VisualStudio.chman `
     --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended `
     --add Microsoft.Component.MSBuild `
- || IF "%ERRORLEVEL%"=="3010" EXIT 0
+    --add Microsoft.VisualStudio.Component.Windows10SDK.18362
 
 # Install Python and Git.
 RUN powershell.exe -ExecutionPolicy RemoteSigned `
@@ -34,3 +41,4 @@ ENTRYPOINT C:\BuildTools\Common7\Tools\VsDevCmd.bat &&
 
 # Default to PowerShell if no other command specified.
 CMD ["powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
+
