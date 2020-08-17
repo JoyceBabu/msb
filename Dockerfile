@@ -22,7 +22,6 @@ RUN C:\Temp\vs_buildtools.exe `
     --installChannelUri C:\Temp\VisualStudio.chman `
     --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended `
     --add Microsoft.Component.MSBuild `
-    --add Microsoft.VisualStudio.Component.Windows10SDK.18362 `
  || IF "%ERRORLEVEL%"=="3010" EXIT 0
 
 # Install Python and Git.
