@@ -10,8 +10,8 @@ install:
   - docker version
 
 build_script:
-  - docker build -t JoyceBabu/msb .
+  - docker build -t joycebabu/msb .
 
 deploy_script:
   - docker login -u="$env:DOCKER_USER" -p="$env:DOCKER_PASS"
-  - docker push JoyceBabu/msb
+  - docker push joycebabu/msb
