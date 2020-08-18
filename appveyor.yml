@@ -10,6 +10,8 @@ install:
   - docker version
 
 build_script:
+  - cmd /C ver
+  - docker run --rm mcr.microsoft.com/dotnet/framework/sdk:4.8 cmd /C ver
   - docker build -t joycebabu/msb -m 2GB .
 
 deploy_script:
