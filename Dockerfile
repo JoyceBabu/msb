@@ -15,28 +15,18 @@ ADD https://aka.ms/vscollect.exe C:\TEMP\collect.exe
 ARG CHANNEL_URL=https://aka.ms/vs/16/release/channel
 ADD ${CHANNEL_URL} C:\TEMP\VisualStudio.chman
 
+# Install Build Tools with the Microsoft.VisualStudio.Workload.AzureBuildTools workload, excluding workloads and components with known issues.
 ADD https://aka.ms/vs/16/release/vs_buildtools.exe C:\TEMP\vs_buildtools.exe
-
-# For help on command-line syntax:
-# https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio
-# Install MSVC C++ compiler, CMake, and MSBuild.
-RUN C:\TEMP\Install.cmd C:\TEMP\vs_buildtools.exe `
-    --quiet --wait --norestart --nocache `
+RUN C:\TEMP\Install.cmd C:\TEMP\vs_buildtools.exe --quiet --wait --norestart --nocache `
     --installPath C:\BuildTools `
     --channelUri C:\TEMP\VisualStudio.chman `
     --installChannelUri C:\TEMP\VisualStudio.chman `
-    --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended `
-    --add Microsoft.Component.MSBuild `
-    --add Microsoft.VisualStudio.Component.Windows10SDK.18362
+    --add Microsoft.VisualStudio.Workload.AzureBuildTools `
+    --remove Microsoft.VisualStudio.Component.Windows10SDK.10240 `
+    --remove Microsoft.VisualStudio.Component.Windows10SDK.10586 `
+    --remove Microsoft.VisualStudio.Component.Windows10SDK.14393 `
+    --remove Microsoft.VisualStudio.Component.Windows81SDK
 
-# Install Python and Git.
-RUN powershell.exe -ExecutionPolicy RemoteSigned `
-  iex (new-object net.webclient).downloadstring('https://get.scoop.sh'); `
-  scoop install python git
-
-# Start developer command prompt with any other commands specified.
-ENTRYPOINT C:\BuildTools\Common7\Tools\VsDevCmd.bat &&
-
-# Default to PowerShell if no other command specified.
-CMD ["powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
-
+# Define the entry point for the Docker container.
+# This entry point starts the developer command prompt and launches the PowerShell shell.
+ENTRYPOINT ["C:\\BuildTools\\Common7\\Tools\\VsDevCmd.bat", "&&", "powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
