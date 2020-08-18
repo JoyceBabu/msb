@@ -18,14 +18,13 @@ ADD ${CHANNEL_URL} C:\TEMP\VisualStudio.chman
 # Install Build Tools with the Microsoft.VisualStudio.Workload.AzureBuildTools workload, excluding workloads and components with known issues.
 ADD https://aka.ms/vs/16/release/vs_buildtools.exe C:\TEMP\vs_buildtools.exe
 RUN C:\TEMP\Install.cmd C:\TEMP\vs_buildtools.exe --quiet --wait --norestart --nocache `
+    --quiet --wait --norestart --nocache `
     --installPath C:\BuildTools `
     --channelUri C:\TEMP\VisualStudio.chman `
     --installChannelUri C:\TEMP\VisualStudio.chman `
-    --add Microsoft.VisualStudio.Workload.AzureBuildTools `
-    --remove Microsoft.VisualStudio.Component.Windows10SDK.10240 `
-    --remove Microsoft.VisualStudio.Component.Windows10SDK.10586 `
-    --remove Microsoft.VisualStudio.Component.Windows10SDK.14393 `
-    --remove Microsoft.VisualStudio.Component.Windows81SDK
+    --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended `
+    --add Microsoft.Component.MSBuild `
+    --add Microsoft.VisualStudio.Component.Windows10SDK.18362
 
 # Define the entry point for the Docker container.
 # This entry point starts the developer command prompt and launches the PowerShell shell.
